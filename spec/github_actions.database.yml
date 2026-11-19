@@ -3,6 +3,7 @@ postgres:
   encoding: utf8
   reconnect: false
   host: localhost
+  port: POSTGRES_PORT
   database: crypt_keeper_providers
   pool: 5
   username: crypt_keeper
@@ -15,7 +16,7 @@ mysql:
   database: crypt_keeper_providers
   pool: 5
   host: 127.0.0.1
-  port: 33306
+  port: MYSQL_PORT
   username: crypt_keeper
   password: crypt_keeper
 sqlite:

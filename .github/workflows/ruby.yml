@@ -29,7 +29,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5   
         ports:
-          - 5432:5432
+          - 5432
       mysql:
         image: mysql:5.7
         env:
@@ -38,7 +38,7 @@ jobs:
           MYSQL_PASSWORD: crypt_keeper
           MYSQL_ROOT_PASSWORD: rootpassword
         ports:
-          - 33306:3306
+          - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3      
     
     steps:
@@ -55,11 +55,13 @@ jobs:
                   
       - name: Copy database config
         run: |
-          cp spec/github_actions.database.yml spec/database.yml
+          sed -e "s/POSTGRES_PORT/${{ job.services.postgres.ports[5432] }}/" \
+              -e "s/MYSQL_PORT/${{ job.services.mysql.ports[3306] }}/" \
+              spec/github_actions.database.yml > spec/database.yml
 
       - name: Enable pgcrypto extension
         run: |
-          PGPASSWORD=crypt_keeper psql crypt_keeper_providers -h localhost -p 5432 -U crypt_keeper -tc "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+          PGPASSWORD=crypt_keeper psql crypt_keeper_providers -p ${{ job.services.postgres.ports[5432] }} -h localhost -p 5432 -U crypt_keeper -tc "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
     
       - name: Run tests
         run: bundle exec rake
